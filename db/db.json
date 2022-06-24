@@ -1,43 +1,19 @@
 {
   "notes": [
     {
-      "title": "Test Title",
-      "text": "Test text"
+      "title": "Test 1",
+      "text": "new note1",
+      "id": "0"
     },
     {
-      "title": "note 5",
-      "text": "again a note",
+      "title": "Test 2",
+      "text": "new note 2",
       "id": "1"
     },
     {
-      "title": "note 17",
-      "text": "is this working?",
+      "title": "Test3",
+      "text": "New note 3",
       "id": "2"
-    },
-    {
-      "title": "test3",
-      "text": "testing 1 2",
-      "id": "3"
-    },
-    {
-      "title": "test2",
-      "text": "this is a test",
-      "id": "4"
-    },
-    {
-      "title": "add note",
-      "text": "this note",
-      "id": "5"
-    },
-    {
-      "title": "js",
-      "text": "do js training",
-      "id": "6"
-    },
-    {
-      "title": "do homework",
-      "text": "homework due saturday",
-      "id": "7"
     }
   ]
 }

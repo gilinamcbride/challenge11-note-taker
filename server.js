@@ -23,10 +23,11 @@ app.post("/api/notes", (req, res) => {
   }
 });
 
-// app.delete("/api/notes/:id", (req, res) => {
-//   const { id } = req.params;
-//   return id;
-// });
+app.delete("/api/notes/:id", (req, res) => {
+  deleteNote(req.params.id, notes)
+    .then(createNewNote(req.body, notes))
+    .then(res.json());
+});
 
 // SET UP HTML ROUTES
 app.get("/", (req, res) => {
@@ -54,12 +55,11 @@ function createNewNote(body, notesArray) {
   return note;
 }
 
-// function deleteNote(notesArray) {
-//   const array = notesArray;
-//   const result = array.splice(notesArray.id - 1, 1);
-//   console.log(result);
-// }
-// deleteNote(notes.id === 3);
+// Function to delete object from Array
+function deleteNote(note, notesArray) {
+  const result = notesArray.splice(note, 1);
+  console.log(result);
+}
 
 // Function to Validate Data coming from note
 function validateNote(note) {
