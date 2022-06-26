@@ -1,7 +1,9 @@
 const express = require("express");
-const { notes } = require("./db/db.json");
+const notes = require("./db/db.json");
 const path = require("path");
 const fs = require("fs");
+const { create } = require("domain");
+const { notStrictEqual } = require("assert");
 
 const PORT = 3001;
 const app = express();
@@ -24,15 +26,24 @@ app.post("/api/notes", (req, res) => {
 });
 
 app.delete("/api/notes/:id", (req, res) => {
-  deleteNote(req.params.id, notes)
-    .then(createNewNote(req.body, notes))
-    .then(res.json());
+  const id = findById(req.params.id, notes);
+  if (id) {
+    const oldNotes = notes;
+    const deletedList = oldNotes.filter((note) => note.id !== req.params.id);
+    console.log(deletedList);
+
+    fs.writeFileSync(
+      path.join(__dirname, "./db/db.json"),
+      JSON.stringify(deletedList)
+    );
+    res.json(deletedList);
+  }
 });
 
 // SET UP HTML ROUTES
-// app.get("/", (req, res) => {
-//   res.sendFile(path.join(__dirname, "./public/index.html"));
-// });
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/index.html"));
+});
 
 app.get("/notes", (req, res) => {
   res.sendFile(path.join(__dirname, "./public/notes.html"));
@@ -50,15 +61,15 @@ function createNewNote(body, notesArray) {
   notesArray.push(note);
   fs.writeFileSync(
     path.join(__dirname, "./db/db.json"),
-    JSON.stringify({ notes: notesArray }, null, 2)
+    JSON.stringify(notesArray, null, 2)
   );
   return note;
 }
 
-// Function to delete object from Array
-function deleteNote(note, notesArray) {
-  const result = notesArray.splice(note, 1);
-  console.log(result);
+// Function to find id
+function findById(id, notes) {
+  const result = notes.filter((note) => note.id === id[0]);
+  return result;
 }
 
 // Function to Validate Data coming from note
