@@ -1,9 +1,12 @@
 const express = require("express");
-const notes = require("./db/db.json");
 const path = require("path");
 const fs = require("fs");
-const { create } = require("domain");
-const { notStrictEqual } = require("assert");
+const util = require("util");
+const readFile = util.promisify(fs.readFile);
+const { v4: uuidv4 } = require("uuid");
+const Notes = require("./db/utils");
+// const htmlRoutes = require("./routes/html");
+// const apiRoutes = require("./routes/api");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -12,25 +15,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Set up GET, POST, DELETE API routes
-app.get("/api/notes", (req, res) => res.json(notes));
+// app.use("/", htmlRoutes);
+// app.use("/api", apiRoutes);
 
-app.post("/api/notes", (req, res) => {
-  req.body.id = notes.length.toString();
-  if (!validateNote(req.body)) {
-    res.status(400).send("The note is not properly formatted.");
-  } else {
-    const note = createNewNote(req.body, notes);
+// // Set up GET, POST, DELETE API routes
+app.get("/api/notes", (req, res) => {
+  Notes.readNotes().then((notesArray) => res.json(notesArray));
+});
+
+app.post("/api/notes", async (req, res) => {
+  let notes = await Notes.readNotes();
+  req.body.id = uuidv4();
+  try {
+    const note = Notes.createNewNote(req.body, notes);
     res.json(note);
+  } catch (error) {
+    res.status(400).send("The note is not properly formatted.");
   }
 });
 
-app.delete("/api/notes/:id", (req, res) => {
-  const id = findById(req.params.id, notes);
-  if (id) {
-    const oldNotes = notes;
+app.delete("/api/notes/:id", async (req, res) => {
+  if (req.params.id) {
+    const oldNotes = await Notes.readNotes();
     const deletedList = oldNotes.filter((note) => note.id !== req.params.id);
-    console.log(deletedList);
 
     fs.writeFileSync(
       path.join(__dirname, "./db/db.json"),
@@ -53,7 +60,21 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./public/index.html"));
 });
 
-// FUNCTIONS
+FUNCTIONS;
+
+function readNotes() {
+  return readFile(path.join(__dirname, "./db/db.json"), "utf-8").then(
+    (notes) => {
+      let notesArray = [];
+      try {
+        notesArray = notesArray.concat(JSON.parse(notes));
+      } catch (error) {
+        notesArray = [];
+      }
+      return notesArray;
+    }
+  );
+}
 
 // Creates new note and adds to db.json
 function createNewNote(body, notesArray) {
@@ -64,23 +85,6 @@ function createNewNote(body, notesArray) {
     JSON.stringify(notesArray, null, 2)
   );
   return note;
-}
-
-// Function to find id
-function findById(id, notes) {
-  const result = notes.filter((note) => note.id === id[0]);
-  return result;
-}
-
-// Function to Validate Data coming from note
-function validateNote(note) {
-  if (!note.title || typeof note.title !== "string") {
-    return false;
-  }
-  if (!note.text || typeof note.text !== "string") {
-    return false;
-  }
-  return true;
 }
 
 // Listening Route
