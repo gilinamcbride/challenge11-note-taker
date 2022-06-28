@@ -3,7 +3,7 @@ const util = require("util");
 const readFile = util.promisify(fs.readFile);
 const path = require("path");
 
-class notes {
+class Notes {
   readNotes() {
     return readFile(path.join(__dirname, "./db.json"), "utf-8").then(
       (notes) => {
@@ -30,4 +30,4 @@ class notes {
   }
 }
 
-module.exports = new notes();
+module.exports = new Notes();
