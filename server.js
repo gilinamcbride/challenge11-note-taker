@@ -60,33 +60,6 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./public/index.html"));
 });
 
-FUNCTIONS;
-
-function readNotes() {
-  return readFile(path.join(__dirname, "./db/db.json"), "utf-8").then(
-    (notes) => {
-      let notesArray = [];
-      try {
-        notesArray = notesArray.concat(JSON.parse(notes));
-      } catch (error) {
-        notesArray = [];
-      }
-      return notesArray;
-    }
-  );
-}
-
-// Creates new note and adds to db.json
-function createNewNote(body, notesArray) {
-  const note = body;
-  notesArray.push(note);
-  fs.writeFileSync(
-    path.join(__dirname, "./db/db.json"),
-    JSON.stringify(notesArray, null, 2)
-  );
-  return note;
-}
-
 // Listening Route
 app.listen(PORT, () => {
   console.log(`Note taker now on port ${PORT}`);
